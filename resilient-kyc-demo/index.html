@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResilientKYC - Multi-Layer AI Identity Verification</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i data-lucide="shield-check" class="neon-icon"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Resilient<span>KYC</span></h1>
+                    <p class="subtitle">Next-Gen Multi-Layer AI Identity Verification</p>
+                </div>
+            </div>
+
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <div class="main-layout">
+            <!-- SIDEBAR: DEMO CONTROLLER -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3 class="section-title"><i data-lucide="sliders"></i> Evaluator Control Panel</h3>
+                    <p class="section-desc">Select a verification scenario to demonstrate how the multi-layered AI filters react to different threat vectors.</p>
+                    
+                    <div class="scenario-selector">
+                        <label class="scenario-option active" data-scenario="pass">
+                            <input type="radio" name="scenario" value="pass" checked>
+                            <div class="option-content">
+                                <span class="option-title"><i data-lucide="check-circle" class="success-text"></i> Scenario A: Clean Pass</span>
+                                <span class="option-desc">Valid user, passes liveness, deepfake, and matches ID document.</span>
+                            </div>
+                        </label>
+
+                        <label class="scenario-option" data-scenario="spoof">
+                            <input type="radio" name="scenario" value="spoof">
+                            <div class="option-content">
+                                <span class="option-title"><i data-lucide="alert-octagon" class="warning-text"></i> Scenario B: Photo Spoof</span>
+                                <span class="option-desc">User shows static photo/video to camera. Liveness fails.</span>
+                            </div>
+                        </label>
+
+                        <label class="scenario-option" data-scenario="deepfake">
+                            <input type="radio" name="scenario" value="deepfake">
+                            <div class="option-content">
+                                <span class="option-title"><i data-lucide="user-x" class="danger-text"></i> Scenario C: Deepfake Swap</span>
+                                <span class="option-desc">Liveness passes, but Deepfake filter detects texture blending anomalies.</span>
+                            </div>
+                        </label>
+
+                        <label class="scenario-option" data-scenario="mismatch">
+                            <input type="radio" name="scenario" value="mismatch">
+                            <div class="option-content">
+                                <span class="option-title"><i data-lucide="users" class="info-text"></i> Scenario D: ID Mismatch</span>
+                                <span class="option-desc">Liveness & deepfake pass, but face does not match the uploaded ID.</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3 class="section-title"><i data-lucide="settings"></i> Demo Settings</h3>
+                    
+                    <div class="setting-group">
+                        <label class="setting-label">Input Source</label>
+                        <div class="toggle-buttons">
+                            <button type="button" class="toggle-btn active" id="btn-webcam"><i data-lucide="webcam"></i> Webcam</button>
+                            <button type="button" class="toggle-btn" id="btn-mock-feed"><i data-lucide="video"></i> Mock Feed</button>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="sidebar-info-card">
+                    <h4><i data-lucide="info"></i> Verification Pipeline</h4>
+                    <ul class="pipeline-list">
+                        <li><span class="step-num">1</span> <strong>Liveness Detection</strong> (Movement, Rotation)</li>
+                        <li><span class="step-num">2</span> <strong>Deepfake Detection</strong> (Textures, Blend CNN)</li>
+                        <li><span class="step-num">3</span> <strong>Face Verification</strong> (ID comparison match)</li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!-- MAIN WORKSPACE -->
+            <main class="workspace-area">
+                <!-- STEP 1: ID DOCUMENT UPLOAD -->
+                <section class="workspace-step active" id="step-id-upload">
+                    <div class="step-header">
+                        <span class="step-badge">Step 1 of 3</span>
+                        <h2>Scan ID Document</h2>
+                        <p class="step-subtitle">Upload a government-issued ID card (e.g. Driver's License or Passport) to extract the face template.</p>
+                    </div>
+
+                    <div class="id-container">
+                        <div class="upload-dropzone" id="id-dropzone">
+                            <input type="file" id="id-file-input" accept="image/*" style="display: none;">
+                            <div class="dropzone-content" id="dropzone-prompt">
+                                <i data-lucide="files" class="upload-icon"></i>
+                                <h3>Drag & Drop ID Card Image</h3>
+                                <p>or click to browse from local computer</p>
+                                <span class="file-spec">Supported formats: JPG, PNG • Max size: 5MB</span>
+                            </div>
+                            <div class="preview-container" id="id-preview-container" style="display: none;">
+                                <img id="id-preview" src="" alt="ID Card Preview">
+                                <div class="scanning-bar"></div>
+                                <div class="face-crop-overlay" id="face-crop">
+                                    <div class="corner top-left"></div>
+                                    <div class="corner top-right"></div>
+                                    <div class="corner bottom-left"></div>
+                                    <div class="corner bottom-right"></div>
+                                    <span class="scan-label"><i data-lucide="scan-face"></i> Locating Face...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-id-choices">
+                            <p class="choices-label">Don't have an ID handy? Use one of our demo identity templates:</p>
+                            <div class="demo-buttons">
+                                <button type="button" class="btn-demo-identity" data-identity="aarav_sharma">
+                                    <i data-lucide="user"></i> Aarav Sharma (Default ID)
+                                </button>
+                                <button type="button" class="btn-demo-identity" data-identity="priya_patel">
+                                    <i data-lucide="user"></i> Priya Patel (Different ID)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-footer">
+                        <button type="button" class="btn btn-primary" id="btn-to-liveness" disabled>
+                            Continue to Liveness Check <i data-lucide="arrow-right"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- STEP 2: LIVE CAMERA CAPTURE -->
+                <section class="workspace-step" id="step-liveness">
+                    <div class="step-header">
+                        <span class="step-badge">Step 2 of 3</span>
+                        <h2>Live Presence Check</h2>
+                        <p class="step-subtitle">Ensure the user is physically present using active liveness challenges.</p>
+                    </div>
+
+                    <div class="camera-layout">
+                        <!-- CAMERA VIEWPORT -->
+                        <div class="camera-viewport">
+                            <video id="webcam-video" autoplay playsinline muted></video>
+                            <canvas id="camera-overlay"></canvas>
+                            <div class="camera-fallback" id="camera-fallback-screen" style="display: none;">
+                                <div class="fallback-glow"></div>
+                                <i data-lucide="user" class="fallback-icon"></i>
+                                <span class="fallback-status">Mock Video Stream Active</span>
+                                <div class="mock-video-bars">
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                            </div>
+
+                            <!-- Interactive Challenge Overlay -->
+                            <div class="challenge-directive-box" id="challenge-box">
+                                <div class="challenge-icon-wrap" id="challenge-icon-container">
+                                    <i data-lucide="eye" id="challenge-icon"></i>
+                                </div>
+                                <div class="challenge-text-wrap">
+                                    <h4 id="challenge-title">Active Challenge</h4>
+                                    <p id="challenge-desc">Please position your face within the frame.</p>
+                                </div>
+                            </div>
+
+                            <div class="camera-frame-guide"></div>
+                        </div>
+
+                        <!-- CHALLENGES SIDEBAR -->
+                        <div class="challenges-status-panel">
+                            <h3>Liveness Verification</h3>
+                            <div class="challenge-progress-bar">
+                                <div class="progress-fill" id="liveness-progress" style="width: 0%;"></div>
+                            </div>
+                            
+                            <div class="challenges-list">
+                                <div class="challenge-item pending" id="chk-alignment">
+                                    <span class="chk-indicator"></span>
+                                    <div class="chk-details">
+                                        <h4>Face Alignment</h4>
+                                        <p>Center your face in the target area</p>
+                                    </div>
+                                </div>
+                                <div class="challenge-item pending" id="chk-rotation">
+                                    <span class="chk-indicator"></span>
+                                    <div class="chk-details">
+                                        <h4>Head Rotation Check</h4>
+                                        <p>Turn your head slightly to the left/right</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-secondary" id="btn-start-verification">
+                                <i data-lucide="play"></i> Start Verification Process
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STEP 3: PIPELINE EXECUTION (Sequential Scanning) -->
+                <section class="workspace-step" id="step-pipeline">
+                    <div class="step-header">
+                        <span class="step-badge">Step 3 of 3</span>
+                        <h2>AI Multi-Layer Analysis</h2>
+                        <p class="step-subtitle">Executing verification pipelines sequentially to detect spoofing, manipulation, and match identities.</p>
+                    </div>
+
+                    <div class="pipeline-run-container">
+                        <!-- Left side: Scanning Feed -->
+                        <div class="pipeline-feed-viewport">
+                            <canvas id="pipeline-feed-canvas"></canvas>
+                            <div class="radar-scanline"></div>
+                            <div class="scanning-grid"></div>
+                            <div class="pip-status-overlay" id="pipeline-current-op">
+                                <i data-lucide="loader" class="spin-icon"></i> RUNNING LIVENESS CHECK...
+                            </div>
+                        </div>
+
+                        <!-- Right side: Module Checkpoints -->
+                        <div class="pipeline-cards">
+                            <!-- Layer 1 -->
+                            <div class="pipeline-card" id="card-liveness">
+                                <div class="card-header-row">
+                                    <span class="layer-badge">Layer 1</span>
+                                    <h3>Liveness Verification</h3>
+                                    <span class="status-indicator pending" id="status-liveness">Pending</span>
+                                </div>
+                                <div class="card-details">
+                                    <div class="metric-row">
+                                        <span>Dynamic Motion Consistency:</span>
+                                        <strong id="metric-motion">--</strong>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span>Micro-texture Reflection:</span>
+                                        <strong id="metric-reflection">--</strong>
+                                    </div>
+                                    <div class="progress-bar-small">
+                                        <div class="fill" id="progress-liveness" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Layer 2 -->
+                            <div class="pipeline-card" id="card-deepfake">
+                                <div class="card-header-row">
+                                    <span class="layer-badge">Layer 2</span>
+                                    <h3>Deepfake Detection</h3>
+                                    <span class="status-indicator pending" id="status-deepfake">Pending</span>
+                                </div>
+                                <div class="card-details">
+                                    <div class="metric-row">
+                                        <span>CNN Texture Frequency Score:</span>
+                                        <strong id="metric-cnn">--</strong>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span>Blending Artifact Coherence:</span>
+                                        <strong id="metric-blending">--</strong>
+                                    </div>
+                                    <div class="progress-bar-small">
+                                        <div class="fill" id="progress-deepfake" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Layer 3 -->
+                            <div class="pipeline-card" id="card-facematch">
+                                <div class="card-header-row">
+                                    <span class="layer-badge">Layer 3</span>
+                                    <h3>Facial Similarity Check</h3>
+                                    <span class="status-indicator pending" id="status-facematch">Pending</span>
+                                </div>
+                                <div class="card-details">
+                                    <div class="metric-row">
+                                        <span>Face Embedding Distance:</span>
+                                        <strong id="metric-distance">--</strong>
+                                    </div>
+                                    <div class="metric-row">
+                                        <span>Cosine Similarity Match:</span>
+                                        <strong id="metric-similarity">--</strong>
+                                    </div>
+                                    <div class="progress-bar-small">
+                                        <div class="fill" id="progress-facematch" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- DECISION SCREEN -->
+                <section class="workspace-step" id="step-decision">
+                    <div class="decision-container">
+                        <!-- Result Header Card -->
+                        <div class="decision-result-card" id="decision-box-element">
+                            <div class="result-icon-container" id="decision-icon-container">
+                                <i data-lucide="shield-check" class="approved-color"></i>
+                            </div>
+                            <h2 id="decision-title">Verification Approved</h2>
+                            <p id="decision-message">The subject's physical presence has been authenticated and matched against the ID template with high confidence.</p>
+                            <span class="timestamp-label" id="decision-timestamp">Timestamp: 2026-05-21 12:35:10</span>
+                        </div>
+
+                        <!-- Detailed Report Layout -->
+                        <div class="decision-report-layout">
+                            <!-- Left: Side-by-Side faces -->
+                            <div class="report-block match-comparison">
+                                <h3>Identity Comparison</h3>
+                                <div class="faces-comparison-grid">
+                                    <div class="face-comparison-box">
+                                        <span class="box-tag">ID Document</span>
+                                        <div class="face-wrapper">
+                                            <img id="result-id-img" src="" alt="ID Face">
+                                        </div>
+                                    </div>
+                                    <div class="comparison-connector">
+                                        <div class="similarity-pill" id="result-similarity-pill">94.6%</div>
+                                        <div class="connector-line"></div>
+                                    </div>
+                                    <div class="face-comparison-box">
+                                        <span class="box-tag">Live Session Capture</span>
+                                        <div class="face-wrapper">
+                                            <img id="result-live-img" src="" alt="Live Face">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Security Metrics -->
+                            <div class="report-block metrics-block">
+                                <h3>Security Verdict Breakdown</h3>
+                                <div class="verdict-metrics-list">
+                                    <div class="verdict-metric-item" id="verdict-liveness-item">
+                                        <div class="metric-top">
+                                            <span>Layer 1: Liveness Status</span>
+                                            <strong id="verdict-liveness-status" class="success-text">PASS</strong>
+                                        </div>
+                                        <div class="metric-bar">
+                                            <div class="fill success-bg" id="verdict-liveness-bar" style="width: 98%;"></div>
+                                        </div>
+                                        <span class="metric-footer" id="verdict-liveness-desc">Confidence: 98.4% (No spoofing indicators found)</span>
+                                    </div>
+
+                                    <div class="verdict-metric-item" id="verdict-deepfake-item">
+                                        <div class="metric-top">
+                                            <span>Layer 2: Deepfake Classification</span>
+                                            <strong id="verdict-deepfake-status" class="success-text">REAL</strong>
+                                        </div>
+                                        <div class="metric-bar">
+                                            <div class="fill success-bg" id="verdict-deepfake-bar" style="width: 99%;"></div>
+                                        </div>
+                                        <span class="metric-footer" id="verdict-deepfake-desc">Confidence: 99.1% (Genuine facial frequency signature)</span>
+                                    </div>
+
+                                    <div class="verdict-metric-item" id="verdict-facematch-item">
+                                        <div class="metric-top">
+                                            <span>Layer 3: Face Verification</span>
+                                            <strong id="verdict-facematch-status" class="success-text">MATCH</strong>
+                                        </div>
+                                        <div class="metric-bar">
+                                            <div class="fill success-bg" id="verdict-facematch-bar" style="width: 94%;"></div>
+                                        </div>
+                                        <span class="metric-footer" id="verdict-facematch-desc">Cosine Similarity: 94.6% (Passed threshold of 82.0%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reset Demo -->
+                        <div class="decision-footer">
+                            <button type="button" class="btn btn-primary btn-large" id="btn-reset-demo">
+                                <i data-lucide="refresh-cw"></i> Start New Verification Demo
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- CONSOLE LOGGER -->
+        <footer class="app-console collapsed" id="app-console">
+            <div class="console-header" id="console-header">
+                <h3>System Processing Logs <i data-lucide="chevron-up" class="toggle-icon" id="console-toggle-icon"></i></h3>
+                <button type="button" class="btn-clear-logs" id="btn-clear-logs"><i data-lucide="trash-2"></i> Clear Logs</button>
+            </div>
+            <div class="console-body" id="console-logs">
+                <div class="log-entry system"><span class="log-time">[12:35:20]</span> ResilientKYC Frontend Engine Initialized. Ready for ID scan.</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MAIN APP SCRIPT -->
+    <script src="app.js"></script>
+</body>
+</html>
