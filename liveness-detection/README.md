@@ -1,4 +1,4 @@
-# 🎭 Liveness Detection
+#  Liveness Detection
 
 A real-time face liveness detection system that distinguishes **live faces** from **spoofing attempts** (photos, videos, masks). Built with a FastAPI backend and a React + Vite frontend.
 
